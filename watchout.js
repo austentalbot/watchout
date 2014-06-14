@@ -3,14 +3,16 @@
 
 //create global variables: height and width; current and high score
 var gameOptions = {
-          height: 450,
-          width: 700,
+          height: 600,
+          //width: 900,
+          width: window.innerWidth,
           nEnemies: 23,
           padding: 10
     };
 var gameStats = {
           currScore: 0,
-          highScore: 0
+          highScore: 0,
+          collisions: 0
     };
 var enemies = [];
 
@@ -73,7 +75,7 @@ var Enemy = function(){
   this.x=Math.random()*gameOptions.width;
   this.y=Math.random()*gameOptions.height;
   this.fill = '#72537A';
-  this.radius = 10;
+  this.radius = 8;
 
   this.render();
 };
@@ -105,10 +107,20 @@ var checkCollision = function() {
     var enemy = enemies[i];
     var enemyX = parseFloat(enemy.element.attr('cx'));
     var enemyY = parseFloat(enemy.element.attr('cy'));
-    if(Math.abs(player.x-enemyX) < (player.radius + enemy.radius)*0.9 && Math.abs(player.y - enemyY) < (player.radius + enemy.radius)*0.9){
+    var enemyRadius=parseFloat(enemy.element.attr('r'));
+    if(Math.abs(player.x-enemyX) < (player.radius + enemyRadius)*0.9 && Math.abs(player.y - enemyY) < (player.radius + enemyRadius)*0.9){
+      //reset score
       gameStats.currScore=0;
-      console.log('crash');
+      //increment collisions
+      gameStats.collisions+=1;
+      //reset enemy radius
+      for (var j=0; j<enemies.length; j++) {
+        enemies[j].element.attr('r', 8);
+      }
+    } else {
+      enemy.element.attr('r', enemyRadius*1.005);
     }
+
 
   }
     //pull x and y coordinates
@@ -135,6 +147,7 @@ setInterval(function(){
     gameStats.highScore=gameStats.currScore;
     d3.select('span#high-score').text(gameStats.highScore);
   }
+  d3.select('span#collision-count').text(gameStats.collisions);
   checkCollision();
 }, 100);
 

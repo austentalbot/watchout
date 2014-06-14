@@ -1,5 +1,20 @@
 /* your beautiful css styling goes here! */
 
-/* Note: an asteroid image is included in this repo. 
+/* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
 
+div {
+  font-family: Helvetica;
+  font-size: 16px;
+}
+
+body {
+  background-color: white;
+  margin: 0px;
+}
+
+.scoreboard {
+  background-color: #16a085;
+  color: white;
+  padding: 5px;
+}
