@@ -124,6 +124,7 @@ var getCurrPos=function(startingPos, endingPos, totTime, currTime) {
 var player = new Player();
 
 
+
 for(var i = 0; i <= gameOptions.nEnemies; i++){
   enemies.push(new Enemy());
 }
