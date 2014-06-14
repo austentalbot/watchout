@@ -116,20 +116,12 @@ var checkCollision = function() {
       //reset current score if collision detected
 };
 
-var getCurrPos=function(startingPos, endingPos, totTime, currTime) {
-  return startingPos+(((endingPos-startingPos)/totTime) * currTime);
-};
-
 
 var player = new Player();
-
-
 
 for(var i = 0; i <= gameOptions.nEnemies; i++){
   enemies.push(new Enemy());
 }
-
-
 
 setInterval(function(){
   for(var i = 0; i < enemies.length; i++){
