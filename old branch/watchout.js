@@ -7,16 +7,14 @@ var gameOptions = {
           //width: 900,
           width: window.innerWidth,
           nEnemies: 23,
-          padding: 10,
-          enemyR: 8
+          padding: 10
     };
 var gameStats = {
           currScore: 0,
           highScore: 0,
           collisions: 0
     };
-var enemyData = [];
-var enemies;
+var enemies = [];
 
 
 //initialize svg off of page body element, passing in width and height
@@ -73,72 +71,75 @@ Player.prototype.setCoord = function(mouseX, mouseY){
   this.element.attr('transform', 'translate('+this.x + ',' + this.y+')');
 };
 
+var Enemy = function(){
+  this.x=Math.random()*gameOptions.width;
+  this.y=Math.random()*gameOptions.height;
+  this.fill = '#72537A';
+  this.radius = 8;
+
+  this.render();
+};
+
+Enemy.prototype.render=function() {
+  this.element = gameboard.append('svg:circle')
+                .attr('cx', this.x)
+                .attr('cy', this.y)
+                .attr('r', this.radius)
+                .attr('fill', this.fill);
+
+};
+
+Enemy.prototype.move=function(){
+  var oldX=this.x;
+  var oldY=this.y;
+  this.x=Math.random()*gameOptions.width;
+  this.y=Math.random()*gameOptions.height;
+  var context = this;
+  this.element.transition().duration(2000)
+                .attr('cx', this.x)
+                .attr('cy', this.y);
+};
 
 var checkCollision = function() {
-  for (var i=0; i< enemies[0].length; i++) {
-    var enemy=enemies[0][i];
-    var X=enemy.cx.animVal.value;
-    var Y=enemy.cy.animVal.value;
-    var R=enemy.r.animVal.value;
-
-    if(Math.abs(player.x-X) < (player.radius+R)*0.9 && Math.abs(player.y - Y) < (player.radius + R)*0.9) {
+  //place in set interval loop
+  //loop over all enemies
+  for(var i = 0; i < enemies.length; i++){
+    var enemy = enemies[i];
+    var enemyX = parseFloat(enemy.element.attr('cx'));
+    var enemyY = parseFloat(enemy.element.attr('cy'));
+    var enemyRadius=parseFloat(enemy.element.attr('r'));
+    if(Math.abs(player.x-enemyX) < (player.radius + enemyRadius)*0.9 && Math.abs(player.y - enemyY) < (player.radius + enemyRadius)*0.9){
       //reset score
       gameStats.currScore=0;
       //increment collisions
       gameStats.collisions+=1;
-
-      gameOptions.enemyR=8;
-      enemies
-      .attr('r', gameOptions.enemyR);
-
+      //reset enemy radius
+      for (var j=0; j<enemies.length; j++) {
+        enemies[j].element.attr('r', 8);
+      }
     } else {
-      gameOptions.enemyR*=1.0002;
-      enemies
-      .attr('r', gameOptions.enemyR);
+      enemy.element.attr('r', enemyRadius*1.005);
     }
 
-  }
-};
 
-var createEnemies = function(){
-  for(var i = 0; i <= gameOptions.nEnemies; i++){
-    enemyData[i] ={
-      x : Math.random()*gameOptions.width,
-      y : Math.random()*gameOptions.height
-    };
   }
+    //pull x and y coordinates
+    //compare with player coordinates (not forgetting radius of each)
+      //reset current score if collision detected
 };
 
 
 var player = new Player();
 
-//initial enemy placement
-createEnemies();
-enemies = gameboard.selectAll('circle.enemy')
-            .data(enemyData);
-enemies.enter()
-  .append('svg:circle')
-  .attr('class', 'enemy')
-  .attr('fill', '#72537A')
-  .attr('cx', function(enemy){ return enemy.x;})
-  .attr('cy', function(enemy){ return enemy.y;})
-  .attr('r', gameOptions.enemyR);
+for(var i = 0; i <= gameOptions.nEnemies; i++){
+  enemies.push(new Enemy());
+}
 
 setInterval(function(){
-  createEnemies();
-  enemies = gameboard.selectAll('circle.enemy')
-              .data(enemyData);
-
-  enemies
-    .transition()
-    .duration(1000)
-    .attr('class', 'enemy')
-    .attr('cx', function(enemy){ return enemy.x;})
-    .attr('cy', function(enemy){ return enemy.y;})
-    .attr('r', gameOptions.enemyR);
-
-}, 2000);
-
+  for(var i = 0; i < enemies.length; i++){
+    enemies[i].move();
+  }
+}, 2500);
 
 setInterval(function(){
   d3.select('span#current-score').text(gameStats.currScore++);
@@ -149,6 +150,4 @@ setInterval(function(){
   d3.select('span#collision-count').text(gameStats.collisions);
   checkCollision();
 }, 100);
-
-
 
